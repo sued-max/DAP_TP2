@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import '../product.dart'; 
+
+class ResultsScreen extends StatelessWidget {
+  final Product mostExpensive;
+  final Product cheapest;
+  final Product highestQty;
+  final Product lowestQty;
+  final double averagePrice;
+
+  ResultsScreen({
+    required this.mostExpensive,
+    required this.cheapest,
+    required this.highestQty,
+    required this.lowestQty,
+    required this.averagePrice,
+  });
+
+  Widget _buildResultRow(String title, Product prod, String extraDetail) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+        subtitle: Text('Nombre: ${prod.name}\nDescripción: ${prod.description}'),
+        trailing: Text(extraDetail, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Resultados del Cálculo')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            _buildResultRow('Producto Más Caro', mostExpensive, '\$${mostExpensive.price.toStringAsFixed(2)}'),
+            _buildResultRow('Producto Más Barato', cheapest, '\$${cheapest.price.toStringAsFixed(2)}'),
+            _buildResultRow('Mayor Cantidad', highestQty, 'Cant: ${highestQty.quantity}'),
+            _buildResultRow('Menor Cantidad', lowestQty, 'Cant: ${lowestQty.quantity}'),
+            Divider(height: 30, thickness: 2),
+            Card(
+              color: Colors.green[50],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Precio Promedio General:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('\$${averagePrice.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[800])),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import '../product.dart'; 
+import './results_screen.dart';
+
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  final _nameController = TextEditingController();
+  final _descController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _qtyController = TextEditingController();
+
+  int _totalProducts = 0;
+  double _totalPriceSum = 0.0;
+
+  Product? _mostExpensive;
+  Product? _cheapest;
+  Product? _highestQty;
+  Product? _lowestQty;
+
+  void _registerProduct() {
+    final String name = _nameController.text;
+    final String desc = _descController.text;
+    final double? price = double.tryParse(_priceController.text);
+    final int? qty = int.tryParse(_qtyController.text);
+
+    if (name.isEmpty || desc.isEmpty || price == null || qty == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, completa todos los campos correctamente')),
+      );
+      return;
+    }
+
+    final currentProduct = Product(name: name, description: desc, price: price, quantity: qty);
+
+    setState(() {
+      _totalProducts++;
+      _totalPriceSum += currentProduct.price;
+
+      if (_totalProducts == 1) {
+        _mostExpensive = currentProduct;
+        _cheapest = currentProduct;
+        _highestQty = currentProduct;
+        _lowestQty = currentProduct;
+      } else {
+        if (currentProduct.price > _mostExpensive!.price) _mostExpensive = currentProduct;
+        if (currentProduct.price < _cheapest!.price) _cheapest = currentProduct;
+        if (currentProduct.quantity > _highestQty!.quantity) _highestQty = currentProduct;
+        if (currentProduct.quantity < _lowestQty!.quantity) _lowestQty = currentProduct;
+      }
+    });
+
+    _nameController.clear();
+    _descController.clear();
+    _priceController.clear();
+    _qtyController.clear();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Producto registrado. Total: $_totalProducts')),
+    );
+  }
+
+  void _goToResults() {
+    if (_totalProducts == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: Debe cargar al menos un producto antes de calcular'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    double averagePrice = _totalPriceSum / _totalProducts;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultsScreen(
+          mostExpensive: _mostExpensive!,
+          cheapest: _cheapest!,
+          highestQty: _highestQty!,
+          lowestQty: _lowestQty!,
+          averagePrice: averagePrice,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Carga de Productos')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(controller: _nameController, decoration: InputDecoration(labelText: 'Nombre')),
+            TextField(controller: _descController, decoration: InputDecoration(labelText: 'Descripción')),
+            TextField(controller: _priceController, decoration: InputDecoration(labelText: 'Precio'), keyboardType: TextInputType.number),
+            TextField(controller: _qtyController, decoration: InputDecoration(labelText: 'Cantidad'), keyboardType: TextInputType.number),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(onPressed: _registerProduct, child: Text('Ingresar producto')),
+                ElevatedButton(
+                  onPressed: _goToResults,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: Text('Calcular', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Text('Productos ingresados actualmente: $_totalProducts', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
