@@ -16,7 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
-  final User _adminUser = User(username: 'admin', password: '123');
+  final User _adminUser = User(username: 'marcelito2009', password: 'hola');
 
   void _login() {
     if (_userController.text == _adminUser.username && _passwordController.text == _adminUser.password) {
